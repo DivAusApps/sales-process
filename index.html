@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Process</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #00ABFA; --cobalt: #0762C8; --royal: #10069F;
+    --navy: #001E62; --midnight: #080E2B;
+    --slate: #53565A; --grey: #888B8D; --silver: #B1B3B3; --mist: #D9D9D6;
+    --crimson: #E4002B; --orange: #FC9630; --plum: #A5119E;
+    --tiffany: #71DBD4; --capri: #00BFB2;
+    --bg: #F7F9FC; --card: #FFFFFF;
+    --shadow-sm: 0 2px 8px rgba(0, 30, 98, 0.06);
+    --shadow-md: 0 8px 24px rgba(0, 30, 98, 0.1);
+    --shadow-lg: 0 20px 48px rgba(0, 30, 98, 0.16);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Montserrat', Arial, sans-serif;
+    background: var(--bg); color: var(--midnight);
+    line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 85% -10%, rgba(0, 171, 250, 0.08), transparent 60%),
+      radial-gradient(ellipse 600px 400px at -10% 110%, rgba(16, 6, 159, 0.05), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  .page { position: relative; z-index: 1; }
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--midnight) 0%, var(--navy) 50%, var(--royal) 100%);
+    color: white; padding: 36px 48px 40px;
+    position: relative; overflow: hidden;
+  }
+  .header::after {
+    content: ""; position: absolute; top: -150px; right: -150px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 171, 250, 0.2), transparent 70%);
+    pointer-events: none;
+  }
+  .header-top {
+    display: flex; justify-content: flex-end; align-items: center;
+    margin-bottom: 24px; position: relative; z-index: 2; flex-wrap: wrap; gap: 16px;
+  }
+  .tag { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sky); opacity: 0.9; font-weight: 500; }
+  .header h1 { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 8px; max-width: 720px; position: relative; z-index: 2; }
+  .header p { font-size: 15px; opacity: 0.75; max-width: 620px; font-weight: 400; position: relative; z-index: 2; }
+  /* RAIL */
+  .rail-wrap { background: var(--card); border-bottom: 1px solid var(--mist); padding: 22px 48px; position: sticky; top: 0; z-index: 10; box-shadow: var(--shadow-sm); overflow-x: auto; }
+  .rail { display: flex; align-items: flex-start; min-width: 900px; max-width: 1400px; margin: 0 auto; position: relative; }
+  .stage-pill { flex: 1; position: relative; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.25s ease; border: none; background: transparent; font-family: inherit; }
+  .stage-pill .num { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: var(--mist); color: var(--slate); font-weight: 700; font-size: 12px; margin-bottom: 6px; transition: all 0.25s ease; position: relative; z-index: 2; }
+  .stage-pill .label { display: block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate); transition: color 0.25s; }
+  .stage-pill:not(:last-child)::after { content: ""; position: absolute; top: 26px; left: 50%; right: -50%; height: 2px; background: var(--mist); z-index: 1; }
+  .stage-pill:hover .num { background: var(--sky); color: white; box-shadow: 0 0 0 5px rgba(0, 171, 250, 0.15); }
+  .stage-pill:hover .label { color: var(--navy); }
+  .stage-pill.active .num { background: linear-gradient(135deg, var(--sky), var(--cobalt)); color: white; box-shadow: 0 0 0 5px rgba(0, 171, 250, 0.2); }
+  .stage-pill.active .label { color: var(--navy); font-weight: 700; }
+  .stage-pill.active::after { background: var(--sky); }
+  /* MAIN */
+  .main { max-width: 1400px; margin: 0 auto; padding: 40px 48px 80px; }
+  .stage-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; gap: 32px; flex-wrap: wrap; }
+  .stage-title-block { flex: 1; min-width: 300px; }
+  .stage-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sky); margin-bottom: 8px; }
+  .stage-title { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; color: var(--midnight); line-height: 1.1; }
+  .stage-description { font-size: 15px; color: var(--slate); margin-top: 12px; max-width: 720px; line-height: 1.6; }
+  .stage-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--mist); font-size: 12px; font-weight: 600; color: var(--navy); }
+  .meta-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sky); }
+
+  /* STEPS */
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .step-card {
+    background: var(--card); border-radius: 12px; padding: 0;
+    border: 1px solid var(--mist);
+    border-bottom: 4px solid var(--role-color, var(--sky));
+    cursor: pointer; transition: all 0.3s ease;
+    position: relative; text-align: left; font-family: inherit; color: inherit;
+    box-shadow: var(--shadow-sm); display: flex; flex-direction: column; min-height: 150px;
+    overflow: hidden;
+  }
+  .step-card::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 60%;
+    background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--role-color, var(--sky)) 12%, transparent) 100%);
+    pointer-events: none; z-index: 0;
+  }
+  .step-card:not(.decision):hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .step-card.decision { border-bottom-color: var(--orange); min-height: 180px; cursor: default; }
+  .step-card.decision::after {
+    background: linear-gradient(to bottom, transparent 0%, rgba(252, 150, 48, 0.1) 100%);
+  }
+  .step-card.system { border-bottom-color: var(--grey); }
+  .step-card.terminator { border-bottom-color: var(--royal); }
+
+  /* Branching states */
+  .step-card.highlighted {
+    box-shadow: 0 0 0 3px var(--sky), var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .step-card.hidden-path {
+    opacity: 0.2;
+    filter: grayscale(0.5);
+    pointer-events: none;
+  }
+  .step-card.hidden-path .not-path-label { display: flex; }
+  .not-path-label {
+    display: none;
+    position: absolute; top: 10px; right: 10px; z-index: 3;
+    background: var(--slate); color: white;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+  }
+
+  .step-content {
+    padding: 18px 20px 14px; flex: 1;
+    display: flex; flex-direction: column;
+    position: relative; z-index: 1;
+  }
+  .step-type-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--bg); color: var(--navy); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .step-type { color: var(--slate); font-weight: 600; }
+  .step-card.decision .step-type { color: var(--orange); }
+  .step-card.system .step-type { color: var(--grey); }
+  .step-text { font-size: 14px; font-weight: 600; color: var(--midnight); line-height: 1.4; flex: 1; }
+  .decision-title {
+    font-size: 15px; font-weight: 700; color: var(--midnight);
+    margin-bottom: 14px; line-height: 1.3;
+  }
+  .decision-buttons {
+    display: flex; gap: 8px; margin-top: auto;
+  }
+  .decision-btn {
+    flex: 1; padding: 10px 14px; border: 2px solid var(--mist);
+    background: white; border-radius: 8px;
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    color: var(--slate);
+  }
+  .decision-btn:hover { border-color: var(--sky); color: var(--navy); }
+  .decision-btn.yes-selected {
+    background: linear-gradient(135deg, #0eb478, #05935f);
+    border-color: transparent; color: white;
+    box-shadow: 0 2px 8px rgba(14, 180, 120, 0.4);
+  }
+  .decision-btn.no-selected {
+    background: linear-gradient(135deg, #888, #555);
+    border-color: transparent; color: white;
+  }
+  .decision-reset {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 10px; color: var(--slate);
+    background: transparent; border: none; cursor: pointer;
+    font-family: inherit; font-weight: 600;
+    display: none;
+  }
+  .decision-reset:hover { color: var(--navy); text-decoration: underline; }
+  .step-card.decision.answered .decision-reset { display: block; }
+  .decision-hint {
+    font-size: 11px; font-weight: 600;
+    color: #0eb478; margin-top: 8px;
+    display: none;
+    align-items: center; gap: 5px;
+  }
+  .decision-hint.no-path { color: var(--slate); }
+  .step-card.decision.answered .decision-hint { display: flex; }
+
+  .step-footer-row {
+    padding: 10px 20px 14px;
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    position: relative; z-index: 1;
+  }
+  .role-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px;
+    background: var(--role-color, var(--sky));
+    color: white;
+    border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    box-shadow: 0 2px 4px color-mix(in srgb, var(--role-color, var(--sky)) 30%, transparent);
+    white-space: nowrap;
+  }
+  .step-tool {
+    display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px;
+    border-radius: 4px; background: rgba(0, 171, 250, 0.1); color: var(--cobalt);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  /* MODAL */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(8, 14, 43, 0.5); backdrop-filter: blur(6px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-backdrop.active { opacity: 1; pointer-events: auto; }
+  .modal { background: white; border-radius: 16px; max-width: 580px; width: 100%; max-height: 88vh; overflow: auto; box-shadow: var(--shadow-lg); transform: scale(0.96); transition: transform 0.2s; border: 1px solid var(--mist); }
+  .modal-backdrop.active .modal { transform: scale(1); }
+  .modal-header { padding: 24px 28px 20px; background: linear-gradient(135deg, var(--midnight), var(--navy)); color: white; border-radius: 16px 16px 0 0; position: relative; }
+  .modal-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sky); margin-bottom: 8px; }
+  .modal h2 { font-size: 22px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; padding-right: 40px; }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; transition: background 0.15s; }
+  .modal-close:hover { background: rgba(255, 255, 255, 0.2); }
+  .modal-body { padding: 22px 28px 26px; }
+  .modal-field { margin-bottom: 18px; }
+  .modal-field:last-child { margin-bottom: 0; }
+  .modal-field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; }
+  .modal-field-value { font-size: 14px; color: var(--midnight); line-height: 1.55; }
+  .modal-role-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: var(--bg); font-weight: 600; font-size: 13px; color: var(--navy); }
+  .modal-role-badge .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--role-color, var(--sky)); }
+  .modal-tool-card { display: flex; gap: 14px; padding: 14px; background: var(--bg); border-radius: 10px; border-left: 3px solid var(--sky); }
+  .modal-tool-card .tool-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--sky), var(--cobalt)); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .modal-tool-card .tool-details .tool-name { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+  .modal-tool-card .tool-details .tool-purpose { font-size: 12px; color: var(--slate); }
+  .modal-tool-card .tool-details .tool-future { font-size: 11px; color: var(--grey); margin-top: 4px; font-style: italic; }
+
+  .role-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--mist); }
+  .role-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--slate); font-weight: 600; }
+  .role-legend-item .swatch { width: 12px; height: 12px; border-radius: 3px; }
+
+  @media (max-width: 800px) {
+    .header { padding: 28px 24px; }
+    .header h1 { font-size: 28px; }
+    .rail-wrap { padding: 16px 20px; }
+    .stage-pill .label { font-size: 9px; }
+    .main { padding: 28px 20px 60px; }
+    .stage-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<header class="header">
+  <div class="header-top">
+    <span class="tag">Sales Operations</span>
+  </div>
+  <h1>Sales Process</h1>
+  <p>From opportunity to handover — the single source of truth for how we pursue, price, and win work. Click through each stage to see the steps, owners, and systems involved.</p>
+</header>
+
+<div class="rail-wrap">
+  <div class="rail" id="rail"></div>
+</div>
+
+<main class="main">
+  <div class="stage-header">
+    <div class="stage-title-block">
+      <div class="stage-eyebrow" id="stage-eyebrow">Stage 01</div>
+      <h2 class="stage-title" id="stage-title">Intake</h2>
+      <p class="stage-description" id="stage-description"></p>
+    </div>
+    <div class="stage-meta" id="stage-meta"></div>
+  </div>
+  <div class="steps-grid" id="steps-grid"></div>
+  <div class="role-legend" id="role-legend"></div>
+</main>
+</div>
+
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-eyebrow" id="modal-eyebrow">Process Step</div>
+      <h2 id="modal-title">Step name</h2>
+      <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const TOOLS = {"T01": {"current": "Pronto", "future": "New Sales App", "purpose": "CRM — opportunity record of truth"}, "T02": {"current": "Pronto", "future": "D-Tools or New Sales App", "purpose": "Quoting tool"}, "T03": {"current": "Sales App", "future": "New Sales App", "purpose": "Power App — quote request entry & resource routing"}, "T04": {"current": "DPC", "future": "DPC", "purpose": "File storage — opportunity documentation"}, "T05": {"current": "Sales Tracker", "future": "New Sales App", "purpose": "Pre-sales progress tracking through to submission"}, "T06": {"current": "Excel Templates", "future": "Excel Templates", "purpose": "Tender template, BOM, pricing"}, "T07": {"current": "SharePoint", "future": "SharePoint", "purpose": "Policies, reference documents"}, "T08": {"current": "Email or Teams", "future": "Outlook or MS Teams", "purpose": "Communications and notifications"}, "T09": {"current": "Word Templates", "future": "Word Templates", "purpose": "Contract clarifications, non-negotiables, letters"}};
+const ROLES = {"Opportunity Owner": {"color": "#00ABFA", "short": "Opp Owner"}, "Sales Ops": {"color": "#00BFB2", "short": "Sales Ops"}, "Engineering Manager": {"color": "#080E2B", "short": "Eng Manager"}, "Estimating Resource": {"color": "#0762C8", "short": "Estimator"}, "Engineering Resource": {"color": "#10069F", "short": "Engineering"}, "Documentation Resource": {"color": "#A5119E", "short": "Docs"}, "Technical SME": {"color": "#71DBD4", "short": "SME"}, "Contract Review": {"color": "#FC9630", "short": "Contracts"}, "Service": {"color": "#E4002B", "short": "Service (SDM)"}, "Management & Approvals": {"color": "#001E62", "short": "Management"}, "Automatic": {"color": "#888B8D", "short": "System"}};
+const STAGES = [{"name": "Intake", "description": "Opportunity is identified. Non-current clients are assessed for viability. The opportunity is entered into the CRM, the quote request is raised in Sales App, and documentation is consolidated in DPC.", "steps": [{"n": 1, "stage": "Intake", "text": "Opportunity identified", "type": "Milestone", "role": "Opportunity Owner", "tool": "", "notes": "Trigger for the whole process. Sources include existing managed clients, public tender platforms, and proactively monitored strategic accounts."}, {"n": 2, "stage": "Intake", "text": "Client is current?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "Check whether the client has an active account and current status before proceeding. Non-current clients go to APAC leadership for viability."}, {"n": 3, "stage": "Intake", "text": "Discuss viability with APAC leadership", "type": "Decision", "role": "Management & Approvals", "tool": "T08", "notes": "Non-current clients only. APAC leadership decides go/no-go before any further effort is invested."}, {"n": 4, "stage": "Intake", "text": "Enter opportunity into CRM", "type": "Process", "role": "Opportunity Owner", "tool": "T01", "notes": "Creates the opportunity record — the trigger for everything downstream. Capture client, scope summary, expected value, and close date."}, {"n": 5, "stage": "Intake", "text": "Fill in quote request via Sales App", "type": "Process", "role": "Opportunity Owner", "tool": "T03", "notes": "Opp Owner selects pre-sales requirements (engineering, documentation, SLA, sample contract). This is the entry point that drives resource routing and downstream workflows."}, {"n": 6, "stage": "Intake", "text": "DPC site auto-created", "type": "Process", "role": "Automatic", "tool": "T04", "notes": "Sales App automatically provisions a DPC site for the opportunity. Allow up to 5 minutes for the site to be ready."}, {"n": 7, "stage": "Intake", "text": "Upload opportunity documentation to DPC", "type": "Process", "role": "Opportunity Owner", "tool": "T04", "notes": "Client briefs, tender docs, correspondence — all consolidated in DPC so resources assigned later have a single source of truth."}]}, {"name": "Resourcing", "description": "Resource assignment decisions — estimating, engineering, documentation, and SLA costing. Answer each Yes/No to see the steps that apply to your opportunity.", "steps": [{"n": 8, "stage": "Resourcing", "text": "Request routed to Sales Tracker queue", "type": "System", "role": "Automatic", "tool": "T05", "notes": "Request appears in the Sales Tracker 'unassigned' column, ready for resources to claim."}, {"n": 9, "stage": "Resourcing", "text": "Resource available in-region?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "If yes, proceed with in-region estimator. If no, escalate to National Sales Ops to source out-of-region."}, {"n": 10, "stage": "Resourcing", "text": "Escalate estimating request to National Sales Ops", "type": "Process", "role": "Sales Ops", "tool": "T08", "notes": "Raised when no in-region estimating resource is available. National Sales Ops sources an out-of-region estimator."}, {"n": 11, "stage": "Resourcing", "text": "Estimator assigned", "type": "Process", "role": "Estimating Resource", "tool": "T05", "notes": "Estimating resource confirmed. The estimator assigns themselves to the opportunity on the Sales Tracker and advises Opp Owner."}, {"n": 12, "stage": "Resourcing", "text": "Is engineering required?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "Based on scope — not every opportunity needs pre-sales engineering. If yes, Engineering Manager assigns a resource."}, {"n": 13, "stage": "Resourcing", "text": "Pre-sales engineer assigned", "type": "Process", "role": "Engineering Manager", "tool": "T05", "notes": "Engineering Manager confirms resource, engineer assigns themselves to the Sales Tracker and advises Opp Owner."}, {"n": 14, "stage": "Resourcing", "text": "Documentation assistance required?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "Some tenders require extensive documentation support. Flag if a Docs resource is needed."}, {"n": 15, "stage": "Resourcing", "text": "Escalate documentation request to National Sales Ops", "type": "Process", "role": "Sales Ops", "tool": "T08", "notes": "Sales Ops confirms availability of a documentation resource to assist with the tender response."}, {"n": 16, "stage": "Resourcing", "text": "Documentation resource assigned", "type": "Process", "role": "Documentation Resource", "tool": "T05", "notes": "Documentation resource confirmed, assigns themselves to the Sales Tracker and advises Opp Owner."}, {"n": 17, "stage": "Resourcing", "text": "Is an SLA required?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "Some opportunities require a Service Level Agreement component. If yes, engage the SDM."}, {"n": 18, "stage": "Resourcing", "text": "Engage SDM — SDM provides SLA costing", "type": "Process", "role": "Service", "tool": "T08", "notes": "Service Delivery Manager prices the SLA component and returns costing to Opp Owner."}]}, {"name": "Contract", "description": "Where a sample contract exists, Contract Review assesses terms and flags non-negotiables. Commercial and technical clarifications are captured and the letter of offer is drafted.", "steps": [{"n": 19, "stage": "Contract", "text": "Do we have a sample contract?", "type": "Decision", "role": "Opportunity Owner", "tool": "T03", "notes": "If selected in Sales App, the Contracts team automatically receives a review request."}, {"n": 20, "stage": "Contract", "text": "Opp Owner adds contract to DPC", "type": "Process", "role": "Opportunity Owner", "tool": "T04", "notes": "Place the sample contract in the DPC Contracts folder for the Contracts team to review."}, {"n": 21, "stage": "Contract", "text": "Contract review", "type": "Process", "role": "Contract Review", "tool": "", "notes": "Contract Review team assesses terms and flags any issues or required clarifications."}, {"n": 22, "stage": "Contract", "text": "Non-negotiable items identified", "type": "Process", "role": "Contract Review", "tool": "T09", "notes": "Items flagged as non-negotiable are documented in the Word template for inclusion with the submission."}, {"n": 23, "stage": "Contract", "text": "Document commercial & technical clarifications", "type": "Process", "role": "Opportunity Owner", "tool": "T09", "notes": "Any clarifications, assumptions, or exclusions documented in the Word template for submission with the quote."}, {"n": 24, "stage": "Contract", "text": "Build out letter of offer", "type": "Process", "role": "Opportunity Owner", "tool": "T09", "notes": "Letter of offer produced from the Word template using the signed-off quote."}]}, {"name": "Planning", "description": "With resources confirmed and contract direction understood, the bid kick-off meeting defines win strategy and technical requirements.", "steps": [{"n": 25, "stage": "Planning", "text": "Bid kick-off meeting scheduled", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Scheduled only after all resources are confirmed — everyone needed is in the room for kick-off."}, {"n": 26, "stage": "Planning", "text": "Bid kick-off meeting — define win strategy & tech requirements", "type": "Process", "role": "Opportunity Owner", "tool": "", "notes": "Align on approach with Opp Owner, Estimator, Engineering, Docs, and SMEs as needed."}, {"n": 27, "stage": "Planning", "text": "Actions captured in bid template & check-in meetings planned", "type": "Process", "role": "Opportunity Owner", "tool": "T06", "notes": "Populate the bid template with actions, owners, and check-in cadence."}, {"n": 28, "stage": "Planning", "text": "Pre-sales meeting scheduled (if required)", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Optional — for client walkthroughs or deeper technical clarifications."}]}, {"name": "Engineering", "description": "Pre-sales engineering scopes the technical solution — responding to clarifications and reviewing the BoM for accuracy.", "steps": [{"n": 29, "stage": "Engineering", "text": "Engineering — provide technical clarifications", "type": "Process", "role": "Engineering Resource", "tool": "T06", "notes": "Engineering responds to technical questions raised by the client or bid team, captured in the tender template."}, {"n": 30, "stage": "Engineering", "text": "Engineering complete — resource advises estimator", "type": "Process", "role": "Engineering Resource", "tool": "T05", "notes": "Handover trigger from Engineering to Estimating. Sales Tracker updated."}, {"n": 31, "stage": "Engineering", "text": "Engineering — BoM check and comment", "type": "Process", "role": "Engineering Resource", "tool": "T06", "notes": "Engineering reviews the preliminary BoM for technical accuracy and flags any issues or substitutions."}]}, {"name": "Estimating", "description": "Master kit of parts and full BoM built in the quoting tool. Supplier pricing gathered, pricelists refreshed, and programming & commissioning effort compiled by SMEs. Final pricing applied.", "steps": [{"n": 32, "stage": "Estimating", "text": "Build out master kit of parts", "type": "Process", "role": "Estimating Resource", "tool": "T02", "notes": "Master kit of parts constructed in the quoting tool from the solution scope."}, {"n": 33, "stage": "Estimating", "text": "Opp Owner to check and validate the master BoM", "type": "Process", "role": "Opportunity Owner", "tool": "T02", "notes": "Sanity check of the master BoM against what was promised to the client before full build-out."}, {"n": 34, "stage": "Estimating", "text": "Build out full bill of materials", "type": "Process", "role": "Estimating Resource", "tool": "T02", "notes": "Full BoM expanded from the validated master kit — all items, quantities, and categories."}, {"n": 35, "stage": "Estimating", "text": "Output preliminary BoM for engineering review", "type": "Process", "role": "Estimating Resource", "tool": "T06", "notes": "Preliminary BoM exported so Engineering can sanity-check before final pricing is applied."}, {"n": 36, "stage": "Estimating", "text": "Supplier total spend < $10K?", "type": "Decision", "role": "Opportunity Owner", "tool": "", "notes": "Sub-$10K supplier spend can use the pricelist; higher spend requires explicit supplier quotes."}, {"n": 37, "stage": "Estimating", "text": "Request quotes from suppliers", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Supplier pricing gathered for items outside the pricelist or over the $10K threshold."}, {"n": 38, "stage": "Estimating", "text": "Quotes added to DPC", "type": "Process", "role": "Opportunity Owner", "tool": "T04", "notes": "Supplier quotes saved to the Vendor folder in DPC for audit trail."}, {"n": 39, "stage": "Estimating", "text": "Prices updated in quoting tool", "type": "Process", "role": "Estimating Resource", "tool": "T02", "notes": "Prices refreshed in the quoting tool from current pricelists and supplier quotes just received."}, {"n": 40, "stage": "Estimating", "text": "Programming & commissioning effort request sent to SMEs", "type": "Process", "role": "Estimating Resource", "tool": "T08", "notes": "Estimating sends a request to SMEs with links to the documentation and the Excel template for effort entry."}, {"n": 41, "stage": "Estimating", "text": "P&C effort compiled in tender template", "type": "Process", "role": "Technical SME", "tool": "T06", "notes": "SMEs add programming and commissioning effort estimates into the Excel template in DPC."}, {"n": 42, "stage": "Estimating", "text": "SME advises Estimating Resource once complete", "type": "Process", "role": "Technical SME", "tool": "T08", "notes": "SMEs notify the Estimator on completion so final pricing can be applied."}, {"n": 43, "stage": "Estimating", "text": "Apply final pricing to BoM", "type": "Process", "role": "Estimating Resource", "tool": "T02", "notes": "Margins and markups applied — final costed BoM ready for review and sign-off."}, {"n": 44, "stage": "Estimating", "text": "Output final quote from costed BoM", "type": "Process", "role": "Estimating Resource", "tool": "T06", "notes": "Final quote and tender output generated from the costed BoM, ready for sign-off."}]}, {"name": "Review", "description": "Final pre-checks of quote and tender documentation. Sign-off meeting held for formal GP approval before submission.", "steps": [{"n": 45, "stage": "Review", "text": "Master kit of parts check", "type": "Process", "role": "Opportunity Owner", "tool": "T02", "notes": "Opp Owner validates the final BoM against client requirements one last time."}, {"n": 46, "stage": "Review", "text": "Final pre-check of quote and tender doco", "type": "Process", "role": "Opportunity Owner", "tool": "T06", "notes": "Last review before formal sign-off — pricing, BoM, commercial terms, clarifications all aligned."}, {"n": 47, "stage": "Review", "text": "Sign-off meeting scheduled", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Schedule with APAC leadership for GP approval."}, {"n": 48, "stage": "Review", "text": "Sign-off meeting & GP approval", "type": "Process", "role": "Management & Approvals", "tool": "", "notes": "Formal GP approval required before submission."}, {"n": 49, "stage": "Review", "text": "Final check", "type": "Process", "role": "Opportunity Owner", "tool": "", "notes": "Post sign-off sanity check — no last-minute changes missed before submission goes out."}]}, {"name": "Submission", "description": "Formal submission to client. Active follow-up and negotiation through to decision.", "steps": [{"n": 50, "stage": "Submission", "text": "Submission to client", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Formal submission delivered to the client via email or tender platform."}, {"n": 51, "stage": "Submission", "text": "Sales Tracker updated — submission status", "type": "System", "role": "Automatic", "tool": "T05", "notes": "Status on Sales Tracker moved to 'Submitted'."}, {"n": 52, "stage": "Submission", "text": "Follow up & client check-ins", "type": "Process", "role": "Opportunity Owner", "tool": "T08", "notes": "Active pursuit — regular check-ins until client decision."}, {"n": 53, "stage": "Submission", "text": "Re-negotiate to align with company objectives (if possible)", "type": "Process", "role": "Opportunity Owner", "tool": "", "notes": "Where client feedback suggests scope or pricing changes are needed to win or to protect margin."}]}, {"name": "Outcome", "description": "Forecast updated and final outcome (Won / Lost / Dead) recorded in CRM. A won outcome triggers the handover process.", "steps": [{"n": 54, "stage": "Outcome", "text": "Forecast updated", "type": "Process", "role": "Opportunity Owner", "tool": "T01", "notes": "Weighted forecast updated in CRM based on client feedback and likelihood."}, {"n": 55, "stage": "Outcome", "text": "Final outcome recorded in CRM", "type": "Milestone", "role": "Opportunity Owner", "tool": "T01", "notes": "Won / Lost / Dead recorded with reason. If won, triggers handover process (see Handover sub-flow)."}]}];
+const BRANCHES = {"9": {"question": "Resource available in-region?", "yes_label": "Yes", "no_label": "No", "yes_steps": [11], "no_steps": [10]}, "12": {"question": "Is engineering required?", "yes_label": "Yes", "no_label": "No", "yes_steps": [13], "no_steps": []}, "14": {"question": "Documentation assistance required?", "yes_label": "Yes", "no_label": "No", "yes_steps": [15, 16], "no_steps": []}, "17": {"question": "Is an SLA required?", "yes_label": "Yes", "no_label": "No", "yes_steps": [18], "no_steps": []}, "19": {"question": "Do we have a sample contract?", "yes_label": "Yes", "no_label": "No", "yes_steps": [20, 21, 22], "no_steps": []}, "36": {"question": "Supplier total spend < $10K?", "yes_label": "Yes", "no_label": "No", "yes_steps": [39], "no_steps": [37, 38]}, "2": {"question": "Client is current?", "yes_label": "Yes", "no_label": "No", "yes_steps": [], "no_steps": [3]}};
+
+// Decision answers persist per session — keyed by decision step number
+const decisions = {};
+
+function typeLabel(t) {
+  const v = (t || '').toLowerCase();
+  return v === 'decision' ? 'Decision' : v === 'terminator' || v === 'milestone' ? 'Milestone' : v === 'system' ? 'Automated' : 'Process';
+}
+function typeClass(t) {
+  const v = (t || '').toLowerCase();
+  if (v === 'decision') return 'decision';
+  if (v === 'milestone' || v === 'terminator') return 'terminator';
+  if (v === 'system') return 'system';
+  return '';
+}
+
+// Build rail
+const rail = document.getElementById('rail');
+STAGES.forEach((stage, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'stage-pill' + (i === 0 ? ' active' : '');
+  btn.dataset.stage = stage.name;
+  btn.innerHTML = '<div class="num">' + String(i+1).padStart(2,'0') + '</div><span class="label">' + stage.name + '</span>';
+  btn.addEventListener('click', () => selectStage(stage.name));
+  rail.appendChild(btn);
+});
+
+function selectStage(stageName) {
+  const stage = STAGES.find(s => s.name === stageName);
+  const idx = STAGES.indexOf(stage);
+
+  document.querySelectorAll('.stage-pill').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-stage="' + stageName + '"]').classList.add('active');
+
+  document.getElementById('stage-eyebrow').textContent = 'Stage ' + String(idx+1).padStart(2,'0') + ' of ' + String(STAGES.length).padStart(2,'0');
+  document.getElementById('stage-title').textContent = stage.name;
+  document.getElementById('stage-description').textContent = stage.description;
+
+  // meta
+  const roles = [...new Set(stage.steps.map(s => s.role))];
+  const decisionCount = stage.steps.filter(s => (s.type || '').toLowerCase() === 'decision').length;
+  const autoCount = stage.steps.filter(s => (s.type || '').toLowerCase() === 'system').length;
+  const meta = document.getElementById('stage-meta');
+  meta.innerHTML = '';
+  const chips = [
+    { label: stage.steps.length + ' steps' },
+    { label: roles.length + ' role' + (roles.length > 1 ? 's' : '') }
+  ];
+  if (decisionCount) chips.push({ label: decisionCount + ' decision' + (decisionCount > 1 ? 's' : '') });
+  if (autoCount) chips.push({ label: autoCount + ' automated' });
+  chips.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'meta-chip';
+    el.innerHTML = '<span class="dot"></span>' + c.label;
+    meta.appendChild(el);
+  });
+
+  // steps
+  const grid = document.getElementById('steps-grid');
+  grid.innerHTML = '';
+  stage.steps.forEach(step => {
+    const role = ROLES[step.role] || { color: '#53565A', short: step.role };
+    const card = document.createElement('div');
+    const tc = typeClass(step.type);
+    card.className = 'step-card' + (tc ? ' ' + tc : '');
+    card.style.setProperty('--role-color', role.color);
+    card.dataset.stepN = step.n;
+
+    const toolName = step.tool && TOOLS[step.tool] ? TOOLS[step.tool].current : '';
+    const toolBadge = toolName ? '<span class="step-tool">' + toolName + '</span>' : '';
+
+    if (tc === 'decision' && BRANCHES[step.n]) {
+      // Interactive decision card
+      const branch = BRANCHES[step.n];
+      card.innerHTML =
+        '<span class="not-path-label">Not your path</span>' +
+        '<button class="decision-reset" data-decision-n="' + step.n + '">Reset</button>' +
+        '<div class="step-content">' +
+          '<div class="step-type-row">' +
+            '<span class="step-num">' + step.n + '</span>' +
+            '<span class="step-type">Decision</span>' +
+          '</div>' +
+          '<div class="decision-title">' + branch.question + '</div>' +
+          '<div class="decision-hint" data-hint-n="' + step.n + '"></div>' +
+          '<div class="decision-buttons">' +
+            '<button class="decision-btn" data-decision-n="' + step.n + '" data-answer="yes">Yes</button>' +
+            '<button class="decision-btn" data-decision-n="' + step.n + '" data-answer="no">No</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="step-footer-row">' +
+          '<span class="role-badge">' + role.short + '</span>' +
+        '</div>';
+    } else {
+      card.innerHTML =
+        '<span class="not-path-label">Not your path</span>' +
+        '<div class="step-content">' +
+          '<div class="step-type-row">' +
+            '<span class="step-num">' + step.n + '</span>' +
+            '<span class="step-type">' + typeLabel(step.type) + '</span>' +
+          '</div>' +
+          '<div class="step-text">' + step.text + '</div>' +
+        '</div>' +
+        '<div class="step-footer-row">' +
+          '<span class="role-badge">' + role.short + '</span>' +
+          toolBadge +
+        '</div>';
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => openModal(step));
+    }
+    grid.appendChild(card);
+  });
+
+  // Wire up decision buttons
+  grid.querySelectorAll('.decision-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const decisionN = parseInt(btn.dataset.decisionN);
+      const answer = btn.dataset.answer;
+      applyDecision(decisionN, answer);
+    });
+  });
+  grid.querySelectorAll('.decision-reset').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const decisionN = parseInt(btn.dataset.decisionN);
+      clearDecision(decisionN);
+    });
+  });
+
+  // Re-apply any existing decisions for this stage
+  Object.entries(decisions).forEach(([n, ans]) => applyBranchVisuals(parseInt(n), ans));
+
+  // legend
+  const legend = document.getElementById('role-legend');
+  legend.innerHTML = '';
+  roles.forEach(r => {
+    const role = ROLES[r] || { color: '#53565A', short: r };
+    const el = document.createElement('div');
+    el.className = 'role-legend-item';
+    el.innerHTML = '<span class="swatch" style="background:' + role.color + '"></span>' + r;
+    legend.appendChild(el);
+  });
+}
+
+function applyDecision(decisionN, answer) {
+  decisions[decisionN] = answer;
+  applyBranchVisuals(decisionN, answer);
+}
+
+function applyBranchVisuals(decisionN, answer) {
+  const branch = BRANCHES[decisionN];
+  if (!branch) return;
+
+  // Update decision card button states
+  const decisionCard = document.querySelector('[data-step-n="' + decisionN + '"]');
+  if (decisionCard) {
+    decisionCard.classList.add('answered');
+    decisionCard.querySelectorAll('.decision-btn').forEach(b => {
+      b.classList.remove('yes-selected', 'no-selected');
+      if (b.dataset.answer === answer) {
+        b.classList.add(answer === 'yes' ? 'yes-selected' : 'no-selected');
+      }
+    });
+    // Set hint text
+    const hint = decisionCard.querySelector('[data-hint-n="' + decisionN + '"]');
+    if (hint) {
+      const activeSteps = answer === 'yes' ? branch.yes_steps : branch.no_steps;
+      if (activeSteps.length > 0) {
+        hint.textContent = '→ ' + activeSteps.length + ' step' + (activeSteps.length > 1 ? 's' : '') + ' highlighted';
+        hint.classList.remove('no-path');
+      } else {
+        hint.textContent = '→ Continue straight to the next step';
+        hint.classList.add('no-path');
+      }
+    }
+  }
+
+  // Highlight path steps, dim alternative path steps
+  const activeSteps = answer === 'yes' ? branch.yes_steps : branch.no_steps;
+  const inactiveSteps = answer === 'yes' ? branch.no_steps : branch.yes_steps;
+
+  activeSteps.forEach(n => {
+    const el = document.querySelector('[data-step-n="' + n + '"]');
+    if (el) {
+      el.classList.add('highlighted');
+      el.classList.remove('hidden-path');
+    }
+  });
+  inactiveSteps.forEach(n => {
+    const el = document.querySelector('[data-step-n="' + n + '"]');
+    if (el) {
+      el.classList.add('hidden-path');
+      el.classList.remove('highlighted');
+    }
+  });
+}
+
+function clearDecision(decisionN) {
+  const branch = BRANCHES[decisionN];
+  if (!branch) return;
+  delete decisions[decisionN];
+
+  const decisionCard = document.querySelector('[data-step-n="' + decisionN + '"]');
+  if (decisionCard) {
+    decisionCard.classList.remove('answered');
+    decisionCard.querySelectorAll('.decision-btn').forEach(b => {
+      b.classList.remove('yes-selected', 'no-selected');
+    });
+    const hint = decisionCard.querySelector('[data-hint-n="' + decisionN + '"]');
+    if (hint) { hint.textContent = ''; hint.classList.remove('no-path'); }
+  }
+  [...branch.yes_steps, ...branch.no_steps].forEach(n => {
+    const el = document.querySelector('[data-step-n="' + n + '"]');
+    if (el) { el.classList.remove('highlighted', 'hidden-path'); }
+  });
+}
+
+function openModal(step) {
+  const role = ROLES[step.role] || { color: '#53565A', short: step.role };
+  document.getElementById('modal-eyebrow').textContent =
+    'Step ' + step.n + ' · ' + step.stage + ' · ' + typeLabel(step.type);
+  document.getElementById('modal-title').textContent = step.text;
+
+  const tool = step.tool && TOOLS[step.tool] ? TOOLS[step.tool] : null;
+  const toolHtml = tool ? (
+    '<div class="modal-field">' +
+      '<div class="modal-field-label">System used</div>' +
+      '<div class="modal-tool-card">' +
+        '<div class="tool-icon">' + step.tool + '</div>' +
+        '<div class="tool-details">' +
+          '<div class="tool-name">' + tool.current + '</div>' +
+          '<div class="tool-purpose">' + (tool.purpose || '') + '</div>' +
+          (tool.future && tool.future !== tool.current ? '<div class="tool-future">Post-migration: ' + tool.future + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  ) : '';
+
+  document.getElementById('modal-body').innerHTML =
+    '<div class="modal-field">' +
+      '<div class="modal-field-label">Owner</div>' +
+      '<div class="modal-field-value">' +
+        '<span class="modal-role-badge" style="--role-color:' + role.color + '"><span class="dot"></span>' + step.role + '</span>' +
+      '</div>' +
+    '</div>' +
+    toolHtml +
+    (step.notes ? '<div class="modal-field"><div class="modal-field-label">Guidance</div><div class="modal-field-value">' + step.notes + '</div></div>' : '');
+  document.getElementById('modal-backdrop').classList.add('active');
+}
+function closeModal() { document.getElementById('modal-backdrop').classList.remove('active'); }
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop') closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+selectStage(STAGES[0].name);
+</script>
+</body>
+</html>
